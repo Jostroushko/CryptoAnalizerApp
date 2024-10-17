@@ -7,11 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 
 public class BruteForce {
-    public String decryptByBruteForce(String encryptedText, char[] alphabet) {
-        int alphabetLength = alphabet.length;
-        // перебор сдвигов
-        for (char c : alphabet) {
-            String decrypt = new Cipher().decrypt(encryptedText, c);
+    public String decryptByBruteForce(String encryptedText) {
+        int alphabetLength = Cipher.ALPHABET.length;
+
+        // Перебор сдвигов в диапазоне от 0 до длины алфавита
+        for (int shift = 0; shift < alphabetLength; shift++) {
+            String decrypt = new Cipher().decrypt(encryptedText, shift);  // Передаем числовой сдвиг
             if (isDecryptedCorrectly(decrypt)) {
                 return decrypt;
             }

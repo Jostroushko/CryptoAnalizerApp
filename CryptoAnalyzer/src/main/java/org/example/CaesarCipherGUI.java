@@ -2,8 +2,6 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -14,10 +12,12 @@ public class CaesarCipherGUI extends JFrame {
     private final JTextArea logArea;
     private final FileManager fileManager;
     private final Cipher cipher;
+    private final BruteForce bruteForce;
 
     public CaesarCipherGUI() {
         fileManager = new FileManager();
         cipher = new Cipher();
+        bruteForce = new BruteForce();
 
         setTitle("Криптоанализатор 2000");
         setSize(600, 400);
@@ -31,7 +31,7 @@ public class CaesarCipherGUI extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel inputFileLabel = new JLabel("Файл для шифровки:");
+        JLabel inputFileLabel = new JLabel("Исходный файл:");
         gbc.gridx = 0;
         gbc.gridy = 0;
         mainPanel.add(inputFileLabel, gbc);
@@ -43,18 +43,13 @@ public class CaesarCipherGUI extends JFrame {
         mainPanel.add(inputFileField, gbc);
 
         JButton inputFileButton = new JButton("Открыть");
-        inputFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                chooseFile(inputFileField);
-            }
-        });
+        inputFileButton.addActionListener(e -> chooseFile(inputFileField));
         gbc.gridx = 3;
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         mainPanel.add(inputFileButton, gbc);
 
-        JLabel outputFileLabel = new JLabel("Файл для дешифровки:");
+        JLabel outputFileLabel = new JLabel("Файл для результата:");
         gbc.gridx = 0;
         gbc.gridy = 1;
         mainPanel.add(outputFileLabel, gbc);
@@ -66,12 +61,7 @@ public class CaesarCipherGUI extends JFrame {
         mainPanel.add(outputFileField, gbc);
 
         JButton outputFileButton = new JButton("Открыть");
-        outputFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                chooseFile(outputFileField);
-            }
-        });
+        outputFileButton.addActionListener(e -> chooseFile(outputFileField));
         gbc.gridx = 3;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
@@ -91,48 +81,22 @@ public class CaesarCipherGUI extends JFrame {
 
         // Кнопки действий
         JButton encryptButton = new JButton("Зашифровать");
-        encryptButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                encryptFile();
-            }
-        });
+        encryptButton.addActionListener(e -> encryptFile());
         gbc.gridx = 0;
         gbc.gridy = 3;
         mainPanel.add(encryptButton, gbc);
 
         JButton decryptButton = new JButton("Дешифровать");
-        decryptButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                decryptFile();
-            }
-        });
+        decryptButton.addActionListener(e -> decryptFile());
         gbc.gridx = 1;
         gbc.gridy = 3;
         mainPanel.add(decryptButton, gbc);
 
         JButton bruteForceButton = new JButton("Brute Force");
-        bruteForceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                bruteForceDecrypt();
-            }
-        });
-        gbc.gridx = 2;
-        gbc.gridy = 3;
-        mainPanel.add(bruteForceButton, gbc);
-
-        JButton autoDecryptButton = new JButton("Автоматическая подборка");
-        autoDecryptButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                autoDecrypt();
-            }
-        });
+        bruteForceButton.addActionListener(e -> bruteForceDecrypt());
         gbc.gridx = 3;
         gbc.gridy = 3;
-        mainPanel.add(autoDecryptButton, gbc);
+        mainPanel.add(bruteForceButton, gbc);
 
         logArea = new JTextArea();
         logArea.setEditable(false);
@@ -195,13 +159,13 @@ public class CaesarCipherGUI extends JFrame {
     private void bruteForceDecrypt() {
         String inputFile = inputFileField.getText();
         String outputFile = outputFileField.getText();
-        logArea.append("Brute force completed.\n");
-    }
-
-    // Метод для автоматической расшифровки
-    private void autoDecrypt() {
-        String inputFile = inputFileField.getText();
-        String outputFile = outputFileField.getText();
-        logArea.append("Automatic decryption completed.\n");
+        try {
+            String content = fileManager.readFile(inputFile);  // Читаем файл
+            String decryptedContent = bruteForce.decryptByBruteForce(content);  // Расшифровываем текст
+            fileManager.writeFile(decryptedContent, outputFile);  // Записываем в новый файл
+            logArea.append("Файл успешно дешифрован!.\n");
+        } catch (IOException | NumberFormatException e) {
+            logArea.append("Возникла ошибка: " + e.getMessage() + "\n");
+        }
     }
 }
